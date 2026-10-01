@@ -1,5 +1,5 @@
 {
-  "name": "mc-247-afk-bot",
+    "name": "mc-247-afk-bot",
   "version": "1.1.0",
   "main": "index.js",
   "scripts": {
