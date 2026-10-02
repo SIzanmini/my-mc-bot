@@ -1,11 +1,11 @@
 const mineflayer = require('mineflayer');
 
-// আপনার সার্ভারের সঠিক তথ্য এখানে বসান
+// আপনার সার্ভারের সঠিক তথ্য এখানে সেট করা হয়েছে
 const botOptions = {
-    host: 'friends324.mcsh.io', // উদাহরণ: ://mcserverhost.com
-    port: 25565,                // আপনার সার্ভারের পোর্ট (যেমন: ২৫৫৬৫ বা অন্য কিছু)
+    host: 'friends324.mcsh.io', // আপনার MCServerHost সার্ভারের IP
+    port: 25565,                // ডিফল্ট পোর্ট
     username: 'ServerBot_247',  // বোটের গেমের নাম (যা গেমে দেখাবে)
-    version: '1.21.1'           // আপনার সার্ভারের সঠিক ভার্সন (যেমন ১.২১.১)
+    version: '1.21.1'           // আপনার সার্ভারের সঠিক ভার্সন
 };
 
 function startBot() {
@@ -15,9 +15,17 @@ function startBot() {
     bot.on('spawn', () => {
         console.log(`${bot.username} সফলভাবে সার্ভারে জয়েন করেছে!`);
         
-        // ক্র্যাকড সার্ভারে AuthMe/Login প্লাগইন থাকলে নিচে আপনার পাসওয়ার্ড দিয়ে আন-কমেন্ট করুন
-        // bot.chat('/register YourPassword123 YourPassword123');
-        // bot.chat('/login YourPassword123');
+        // --- LoginSecurity অটো-লগইন সিস্টেম ---
+        // বোট জয়েন করার ২ সেকেন্ড পর নিজে নিজেই রেজিস্টার এবং লগইন করার চেষ্টা করবে
+        setTimeout(() => {
+            // বোট যদি প্রথমবার ঢুকে থাকে, তবে এই কমান্ডটি তাকে রেজিস্টার করবে
+            bot.chat('/register BotPass1234 SizanErBot24/7');
+            
+            // বোট যদি আগে থেকেই রেজিস্টার থাকে, তবে এই কমান্ডটি তাকে লগইন করাবে
+            setTimeout(() => {
+                bot.chat('/login SizanErBot24/7');
+            }, 1000);
+        }, 2000);
 
         // অ্যান্টি-AFK মুভমেন্ট লুপ (প্রতি ২০ সেকেন্ডে বোটটি সামনে-পিছনে হাঁটবে ও লাফাবে)
         setInterval(() => {
