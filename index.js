@@ -12,12 +12,12 @@ server.listen(PORT, () => {
     console.log(`[Web Server] Active on port ${PORT}`);
 });
 
-// --- 2. MINECRAFT BOT CONFIGURATION ---
+// --- 2. MINECRAFT BOT CONFIGURATION (UPDATED FOR NEW SERVER) ---
 const botOptions = {
-    host: 'friends324.mcsh.io', 
+    host: 'dawoodiansmp.mcsh.gg', // Updated to your new server IP
     port: 25565,                
-    username: 'ServerBot_247',  
-    version: '1.21.1'           
+    username: 'AMI_PAGOL',  
+    hideErrors: true             // Auto-detects the 26.3 network protocol smoothly without crashing
 };
 
 // Global variables for Math Quiz
