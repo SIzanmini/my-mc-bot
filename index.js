@@ -1,7 +1,7 @@
 const mineflayer = require('mineflayer');
 const http = require('http');
 
-// --- 1. LIGHTWEIGHT HTTP SERVER FOR RENDER & CRON-JOB (UNTOUCHED) ---
+// --- 1. LIGHTWEIGHT HTTP SERVER FOR RENDER & CRON-JOB ---
 const server = http.createServer((req, res) => {
     res.writeHead(200, { 'Content-Type': 'text/plain' });
     res.end('System Status: Minecraft Bot Optimized and Running 24/7!\n');
@@ -12,12 +12,12 @@ server.listen(PORT, () => {
     console.log(`[Web Server] Active on port ${PORT}`);
 });
 
-// --- 2. MINECRAFT BOT CONFIGURATION (UPDATED FOR NEW SERVER) ---
+// --- 2. MINECRAFT BOT CONFIGURATION ---
 const botOptions = {
-    host: 'dawoodiansmp.mcsh.gg', // Updated to your new server IP
+    host: 'dawoodiansmp.mcsh.gg', 
     port: 25565,                
-    username: 'AMI_PAGOL',  
-    hideErrors: true             // Auto-detects the 26.3 network protocol smoothly without crashing
+    username: 'ServerBot_247',  
+    hideErrors: true             
 };
 
 // Global variables for Math Quiz
@@ -31,14 +31,19 @@ function startBot() {
     bot.on('spawn', () => {
         console.log(`[Bot] ${bot.username} has successfully spawned in the server.`);
         
-        // --- AUTHME / LOGINSECURITY BYPASS (UNTOUCHED) ---
+        // --- 🔒 শক্তিশালী অটো-লগইন ফিক্স (টাইমিং অ্যাডজাস্টমেন্ট) ---
+        // ট্রাই ১: জয়েন করার ১.৫ সেকেন্ড পর দ্রুত চেষ্টা করবে
         setTimeout(() => {
-            console.log('[Security] Dispatching authentication packets...');
             bot.chat('/register BotPass1234 BotPass1234');
-            setTimeout(() => bot.chat('/login BotPass1234'), 1000);
-        }, 2000);
+            setTimeout(() => bot.chat('/login BotPass1234'), 500);
+        }, 1500);
 
-        // --- SMART HUMAN-LIKE ANTI-AFK ENGINE (UNTOUCHED) ---
+        // ট্রাই ২: সার্ভার ল্যাগ করলে ব্যাকআপ হিসেবে ৫ সেকেন্ড পর আবার চেষ্টা করবে
+        setTimeout(() => {
+            bot.chat('/login BotPass1234');
+        }, 5000);
+
+        // --- SMART HUMAN-LIKE ANTI-AFK ENGINE ---
         setInterval(() => {
             if (!bot.entity) return;
             const actionPool = ['look', 'jump', 'sneak', 'idle'];
@@ -63,7 +68,7 @@ function startBot() {
             }
         }, 12000);
 
-        // --- OPTIMIZED AUTOMATED MATH QUIZ SYSTEM (Every 3 Minutes) ---
+        // --- AUTOMATED MATH QUIZ SYSTEM (Every 3 Minutes) ---
         setInterval(() => {
             if (!bot.entity || quizActive) return;
 
@@ -80,17 +85,15 @@ function startBot() {
 
             quizActive = true;
             bot.chat(`[Quiz] First to solve wins: What is ${num1} ${chosenOp} ${num2}?`);
-        }, 180000); // 180000ms = 3 minutes
+        }, 180000);
     });
 
-    // --- OPTIMIZED INTERACTIVE CHAT RESPOND ENGINE ---
+    // --- INTERACTIVE CHAT RESPOND ENGINE ---
     bot.on('chat', (username, message) => {
-        // Prevent the bot from talking to itself
         if (username === bot.username) return;
 
         const cleanMessage = message.toLowerCase().trim();
 
-        // 1. Check for Quiz Answers (Instant String Match Optimization)
         if (quizActive && currentAnswer !== null) {
             if (cleanMessage === currentAnswer.toString()) {
                 bot.chat(`🎉 Congratulations @${username}! Correct answer was ${currentAnswer}.`);
@@ -100,7 +103,6 @@ function startBot() {
             }
         }
 
-        // 2. Automated Block Guide Questions
         if (cleanMessage.includes('!help') || cleanMessage.includes('how to get')) {
             if (cleanMessage.includes('diamond')) {
                 bot.chat(`@${username}, Diamonds spawn deep underground! Strip mine around Y level -58.`);
@@ -114,7 +116,6 @@ function startBot() {
             return;
         }
 
-        // 3. Casual Conversation Triggers
         if (cleanMessage === 'hi' || cleanMessage === 'hello' || cleanMessage === 'hey') {
             bot.chat(`Hello @${username}! Welcome back to the server. How can I help you today?`);
         } else if (cleanMessage.includes('how are you')) {
@@ -124,7 +125,7 @@ function startBot() {
         }
     });
 
-    // --- AUTO EAT MANAGEMENT (UNTOUCHED) ---
+    // --- AUTO EAT MANAGEMENT ---
     bot.on('health', () => {
         if (bot.food < 15) {
             const food = bot.inventory.items().find(item => item.name.includes('cooked') || item.name === 'bread' || item.name === 'apple');
@@ -140,7 +141,6 @@ function startBot() {
         }
     });
 
-    // --- FAILSAFE AUTO-RECONNECT (UNTOUCHED) ---
     bot.on('end', (reason) => {
         console.log(`[Network] Disconnected: ${reason}`);
         setTimeout(startBot, 5000);
