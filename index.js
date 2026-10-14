@@ -1,152 +1,72 @@
 const mineflayer = require('mineflayer');
 const http = require('http');
 
-// --- 1. LIGHTWEIGHT HTTP SERVER FOR RENDER & CRON-JOB ---
+// --- ১. Render-এর জন্য ফ্রি ওয়েব সার্ভার তৈরি (যাতে বোট স্লিপ না করে) ---
 const server = http.createServer((req, res) => {
     res.writeHead(200, { 'Content-Type': 'text/plain' });
-    res.end('System Status: Minecraft Bot Optimized and Running 24/7!\n');
+    res.end('Minecraft Bot is running 24/7!\n');
 });
 
+// Render ফ্রি প্ল্যানের পোর্ট ১০০০০ ব্যবহার করবে
 const PORT = process.env.PORT || 10000;
 server.listen(PORT, () => {
-    console.log(`[Web Server] Active on port ${PORT}`);
+    console.log(`ওয়েব সার্ভার সফলভাবে পোর্ট ${PORT} এ চালু হয়েছে!`);
 });
 
-// --- 2. MINECRAFT BOT CONFIGURATION ---
+// --- ২. মাইনক্রাফট বোটের সেটিংস (নতুন আইপি ও প্রোটোকল ফিক্স) ---
 const botOptions = {
-    host: 'dawoodiansmp.mcsh.gg', 
+    host: 'dawoodiansmp.mcsh.gg', // আপনার নতুন সার্ভার আইপি
     port: 25565,                
     username: 'ServerBot_247',  
-    hideErrors: true             
+    hideErrors: true             // লেটেস্ট নেটওয়ার্ক প্রোটোকল অটো-ডিটেক্ট করার জন্য
 };
 
-// Global variables for Math Quiz
-let currentAnswer = null;
-let quizActive = false;
-
 function startBot() {
-    console.log('[Bot] Initializing deployment...');
+    console.log('--- বোট চালু করার চেষ্টা করা হচ্ছে ---');
     const bot = mineflayer.createBot(botOptions);
 
     bot.on('spawn', () => {
-        console.log(`[Bot] ${bot.username} has successfully spawned in the server.`);
+        console.log(`${bot.username} সফলভাবে সার্ভারে জয়েন করেছে!`);
         
-        // --- 🔒 শক্তিশালী অটো-লগইন ফিক্স (টাইমিং অ্যাডজাস্টমেন্ট) ---
-        // ট্রাই ১: জয়েন করার ১.৫ সেকেন্ড পর দ্রুত চেষ্টা করবে
+        // জয়েন করার ২ সেকেন্ড পর অটো-লগইন কমান্ড পাঠানো (LoginSecurity-এর জন্য)
         setTimeout(() => {
             bot.chat('/register BotPass1234 BotPass1234');
-            setTimeout(() => bot.chat('/login BotPass1234'), 500);
-        }, 1500);
+            setTimeout(() => bot.chat('/login BotPass1234'), 1000);
+        }, 2000);
 
-        // ট্রাই ২: সার্ভার ল্যাগ করলে ব্যাকআপ হিসেবে ৫ সেকেন্ড পর আবার চেষ্টা করবে
-        setTimeout(() => {
-            bot.chat('/login BotPass1234');
-        }, 5000);
-
-        // --- SMART HUMAN-LIKE ANTI-AFK ENGINE ---
+        // অ্যাডভান্সড অ্যান্টি-AFK মুভমেন্ট (সার্ভারকে ফাঁকি দেওয়ার জন্য)
         setInterval(() => {
             if (!bot.entity) return;
-            const actionPool = ['look', 'jump', 'sneak', 'idle'];
-            const randomAction = actionPool[Math.floor(Math.random() * actionPool.length)];
-
-            switch (randomAction) {
-                case 'look':
-                    const yaw = Math.random() * Math.PI * 2;
-                    const pitch = (Math.random() * Math.PI / 2) - (Math.PI / 4);
-                    bot.look(yaw, pitch);
-                    break;
-                case 'jump':
-                    bot.setControlState('jump', true);
-                    setTimeout(() => bot.setControlState('jump', false), 500);
-                    break;
-                case 'sneak':
-                    bot.setControlState('sneak', true);
-                    setTimeout(() => bot.setControlState('sneak', false), 1000);
-                    break;
-                case 'idle':
-                    break;
-            }
-        }, 12000);
-
-        // --- AUTOMATED MATH QUIZ SYSTEM (Every 3 Minutes) ---
-        setInterval(() => {
-            if (!bot.entity || quizActive) return;
-
-            const num1 = Math.floor(Math.random() * 50) + 1;
-            const num2 = Math.floor(Math.random() * 50) + 1;
-            const operators = ['+', '-'];
-            const chosenOp = operators[Math.floor(Math.random() * operators.length)];
-
-            if (chosenOp === '+') {
-                currentAnswer = num1 + num2;
-            } else {
-                currentAnswer = num1 - num2;
-            }
-
-            quizActive = true;
-            bot.chat(`[Quiz] First to solve wins: What is ${num1} ${chosenOp} ${num2}?`);
-        }, 180000);
-    });
-
-    // --- INTERACTIVE CHAT RESPOND ENGINE ---
-    bot.on('chat', (username, message) => {
-        if (username === bot.username) return;
-
-        const cleanMessage = message.toLowerCase().trim();
-
-        if (quizActive && currentAnswer !== null) {
-            if (cleanMessage === currentAnswer.toString()) {
-                bot.chat(`🎉 Congratulations @${username}! Correct answer was ${currentAnswer}.`);
-                quizActive = false;
-                currentAnswer = null;
-                return;
-            }
-        }
-
-        if (cleanMessage.includes('!help') || cleanMessage.includes('how to get')) {
-            if (cleanMessage.includes('diamond')) {
-                bot.chat(`@${username}, Diamonds spawn deep underground! Strip mine around Y level -58.`);
-            } else if (cleanMessage.includes('netherite')) {
-                bot.chat(`@${username}, Mine for Ancient Debris in the Nether at Y level 15, then melt it!`);
-            } else if (cleanMessage.includes('iron')) {
-                bot.chat(`@${username}, Iron can be easily found in mountains or caves around Y level 16.`);
-            } else {
-                bot.chat(`@${username}, I am here 24/7. Ask me about diamonds, iron, or netherite!`);
-            }
-            return;
-        }
-
-        if (cleanMessage === 'hi' || cleanMessage === 'hello' || cleanMessage === 'hey') {
-            bot.chat(`Hello @${username}! Welcome back to the server. How can I help you today?`);
-        } else if (cleanMessage.includes('how are you')) {
-            bot.chat(`I am doing great, keeping this server online 24/7! Thanks for asking, @${username}.`);
-        } else if (cleanMessage.includes(bot.username.toLowerCase())) {
-            bot.chat(`Yes @${username}? I am active and keeping the server running! Type !help for tips.`);
-        }
-    });
-
-    // --- AUTO EAT MANAGEMENT ---
-    bot.on('health', () => {
-        if (bot.food < 15) {
-            const food = bot.inventory.items().find(item => item.name.includes('cooked') || item.name === 'bread' || item.name === 'apple');
-            if (food) {
-                bot.equip(food, 'hand', (err) => {
-                    if (!err) {
-                        bot.consume((consumeErr) => {
-                            if (!consumeErr) console.log('[Survival] Bot consumed food.');
-                        });
-                    }
-                });
-            }
-        }
+            
+            // এলোমেলোভাবে মাথা ঘোরানো ও নড়াচড়া
+            const rx = Math.random() * 2 - 1;
+            const rz = Math.random() * 2 - 1;
+            bot.look(rx, rz);
+            
+            bot.setControlState('forward', true);
+            bot.setControlState('jump', true);
+            
+            setTimeout(() => {
+                bot.setControlState('forward', false);
+                bot.setControlState('jump', false);
+                bot.setControlState('back', true);
+                
+                setTimeout(() => {
+                    bot.setControlState('back', false);
+                }, 800);
+            }, 1200);
+            
+        }, 15000);
     });
 
     bot.on('end', (reason) => {
-        console.log(`[Network] Disconnected: ${reason}`);
+        console.log(`বোট ডিসকানেক্ট হয়েছে। কারণ: ${reason}`);
+        console.log('৫ সেকেন্ড পর আবার জয়েন করার চেষ্টা করা হচ্ছে...');
         setTimeout(startBot, 5000);
     });
 
-    bot.on('error', (err) => console.error('[Error]', err.message));
+    bot.on('error', (err) => console.error('বোট এরর:', err.message));
 }
 
+// বোট চালু করুন
 startBot();
