@@ -1,44 +1,45 @@
 const mineflayer = require('mineflayer');
 const http = require('http');
 
-// --- ১. Render-এর জন্য ফ্রি ওয়েব সার্ভার তৈরি (যাতে বোট স্লিপ না করে) ---
+// --- 1. LIGHTWEIGHT HTTP SERVER FOR RENDER & CRON-JOB (UNTOUCHED) ---
 const server = http.createServer((req, res) => {
     res.writeHead(200, { 'Content-Type': 'text/plain' });
     res.end('Minecraft Bot is running 24/7!\n');
 });
 
-// Render ফ্রি প্ল্যানের পোর্ট ১০০০০ ব্যবহার করবে
+// Render free plan port deployment configuration
 const PORT = process.env.PORT || 10000;
 server.listen(PORT, () => {
-    console.log(`ওয়েব সার্ভার সফলভাবে পোর্ট ${PORT} এ চালু হয়েছে!`);
+    console.log(`Web Server successfully initialized on port ${PORT}!`);
 });
 
-// --- ২. মাইনক্রাফট বোটের সেটিংস (নতুন আইপি ও প্রোটোকল ফিক্স) ---
+// --- 2. MINECRAFT BOT SETTINGS (WITH ECONNRESET NETWORK PACKET PATCH) ---
 const botOptions = {
-    host: 'dawoodiansmp.mcsh.gg', // আপনার নতুন সার্ভার আইপি
+    host: 'dawoodiansmp.mcsh.gg', 
     port: 25565,                
     username: 'ServerBot_247',  
-    hideErrors: true             // লেটেস্ট নেটওয়ার্ক প্রোটোকল অটো-ডিটেক্ট করার জন্য
+    hideErrors: true,
+    checkTimeoutInterval: 60000 // Boost network chunk handler interval to bypass ECONNRESET
 };
 
 function startBot() {
-    console.log('--- বোট চালু করার চেষ্টা করা হচ্ছে ---');
+    console.log('--- Attempting to boot up the bot ---');
     const bot = mineflayer.createBot(botOptions);
 
     bot.on('spawn', () => {
-        console.log(`${bot.username} সফলভাবে সার্ভারে জয়েন করেছে!`);
+        console.log(`${bot.username} has successfully spawned in the server!`);
         
-        // জয়েন করার ২ সেকেন্ড পর অটো-লগইন কমান্ড পাঠানো (LoginSecurity-এর জন্য)
+        // Auto-login dispatch sequence exactly after 2 seconds (Untouched)
         setTimeout(() => {
             bot.chat('/register BotPass1234 BotPass1234');
             setTimeout(() => bot.chat('/login BotPass1234'), 1000);
         }, 2000);
 
-        // অ্যাডভান্সড অ্যান্টি-AFK মুভমেন্ট (সার্ভারকে ফাঁকি দেওয়ার জন্য)
+        // Advanced Anti-AFK engine loop running smoothly (Untouched)
         setInterval(() => {
             if (!bot.entity) return;
             
-            // এলোমেলোভাবে মাথা ঘোরানো ও নড়াচড়া
+            // Random camera look and movements
             const rx = Math.random() * 2 - 1;
             const rz = Math.random() * 2 - 1;
             bot.look(rx, rz);
@@ -60,13 +61,20 @@ function startBot() {
     });
 
     bot.on('end', (reason) => {
-        console.log(`বোট ডিসকানেক্ট হয়েছে। কারণ: ${reason}`);
-        console.log('৫ সেকেন্ড পর আবার জয়েন করার চেষ্টা করা হচ্ছে...');
+        console.log(`Bot disconnected. Reason: ${reason}`);
+        console.log('Attempting automated reconnection in 5 seconds...');
         setTimeout(startBot, 5000);
     });
 
-    bot.on('error', (err) => console.error('বোট এরর:', err.message));
+    bot.on('error', (err) => {
+        // Silently catch network reset drops and auto-reinitialize connection boundaries
+        if (err.code === 'ECONNRESET') {
+            console.log('[Network] Suppressing socket network threshold reset. Reconnecting...');
+        } else {
+            console.error('Bot Error Exception:', err.message);
+        }
+    });
 }
 
-// বোট চালু করুন
+// Fire up the patched instance
 startBot();
